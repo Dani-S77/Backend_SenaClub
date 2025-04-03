@@ -1,23 +1,23 @@
-import { Body, Post, Get, Controller } from '@nestjs/common';
-import { sign } from 'crypto';
+import { Injectable } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model, Types } from 'mongoose';
+import { News } from './Schemas/new.schema';
 import { NewDto } from './dto/new.dto';
 
+@Injectable()
 export class NewsService {
-  // Simulación de una base de datos en memoria (sin Mongoose por las restricciones)
-  private news: any[] = [];
+  constructor(@InjectModel(News.name) private newsModel: Model<News>) {}
 
   async create(newDto: NewDto): Promise<{ message: string; newsId: string }> {
-    const newsId = Date.now().toString(); // Genera un ID simple basado en timestamp
-    const newNews = {
-      ...newDto,
-      createdAt: new Date(),
-      id: newsId,
+    const news = new this.newsModel(newDto);
+    const savedNews = await news.save();
+    return { 
+      message: 'Noticia creada exitosamente', 
+      newsId: (savedNews._id as Types.ObjectId).toHexString()
     };
-    this.news.push(newNews);
-    return { message: 'Noticia creada exitosamente', newsId };
   }
 
-  async getAllNews(): Promise<any[]> {
-    return this.news;
+  async getAllNews(): Promise<News[]> {
+    return this.newsModel.find().exec();
   }
 }
