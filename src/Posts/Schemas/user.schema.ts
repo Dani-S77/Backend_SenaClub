@@ -1,19 +1,17 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
+import * as mongoose from 'mongoose';
 
-@Schema({ timestamps: true })
+@Schema()
 export class Post extends Document {
-  @Prop({ required: true })
-  title: string;
-
   @Prop({ required: true })
   content: string;
 
-  @Prop({ required: true })
-  author: string; // Podría ser el ID del usuario
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true })
+  user: string;
 
-  @Prop()
-  club: string; // Por ejemplo, "futbol"
+  @Prop({ default: Date.now })
+  createdAt: Date;
 }
 
 export const PostSchema = SchemaFactory.createForClass(Post);
