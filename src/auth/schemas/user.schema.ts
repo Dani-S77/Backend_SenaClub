@@ -1,8 +1,10 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 
+export type UserDocument = User & Document; // 👈 Esto es lo que falta
+
 @Schema()
-export class User extends Document {
+export class User {
   @Prop({ required: true })
   firstName: string;
 
