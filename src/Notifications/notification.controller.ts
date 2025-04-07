@@ -1,19 +1,27 @@
-import { Body, Post, Get, Controller } from '@nestjs/common';
+import { Body, Post, Get, Controller, HttpCode, HttpStatus } from '@nestjs/common';
 import { sign } from 'crypto';
 import { NotificationsService } from './notification.service';
 import { NotificationDto } from './dto/notification.dto';
 
 @Controller('notifications')
 export class NotificationsController {
-  constructor(private notificationsService: NotificationsService) {}
+  constructor(private readonly notificationsService: NotificationsService) {}
 
   @Post()
-  create(@Body() notificationDto: NotificationDto): Promise<{ message: string; notificationId: string }> {
-    return this.notificationsService.create(notificationDto);
-  }
-
-  @Get()
-  getNotifications(): Promise<any[]> {
-    return this.notificationsService.getAllNotifications();
+  @HttpCode(HttpStatus.CREATED)
+  async create(@Body() NotificationDto: NotificationDto) {
+    try {
+      const notification = await this.notificationsService.create(NotificationDto);
+      return {
+        error: '',
+        message: 'Notificación creada correctamente',
+        data: notification,
+      };
+    } catch (error) {
+      return {
+        error: 'Error al crear la notificación',
+        message: error.message,
+      };
+    }
   }
 }
