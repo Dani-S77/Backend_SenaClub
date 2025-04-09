@@ -11,7 +11,4 @@ export class NewDto {
   @MinLength(10, { message: 'El contenido debe tener al menos 10 caracteres' })
   readonly content: string;
 
-  @IsNotEmpty({ message: 'El ID del club no puede estar vacío' })
-  @IsString({ message: 'El ID del club debe ser una cadena de texto' })
-  readonly clubId: string;
 }

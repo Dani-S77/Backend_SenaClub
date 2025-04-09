@@ -9,9 +9,6 @@ export class News extends Document {
   @Prop({ required: true })
   content: string;
 
-  @Prop({ required: true })
-  clubId: string;
-
   @Prop({ default: Date.now })
   createdAt: Date;
 }
