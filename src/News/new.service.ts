@@ -3,21 +3,61 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { News } from './Schemas/new.schema';
 import { NewDto } from './dto/new.dto';
+import { NotFoundException } from '@nestjs/common';
 
 @Injectable()
 export class NewsService {
   constructor(@InjectModel(News.name) private newsModel: Model<News>) {}
 
   async create(newDto: NewDto): Promise<{ message: string; newsId: string }> {
-    const news = new this.newsModel(newDto);
-    const savedNews = await news.save();
-    return { 
-      message: 'Noticia creada exitosamente', 
-      newsId: (savedNews._id as Types.ObjectId).toHexString()
-    };
+    try {
+      const news = new this.newsModel(newDto);
+      const savedNews = await news.save();
+      
+      // Usar toString() en el ID asegurándose que es un ObjectId
+      const newsId = savedNews._id instanceof Types.ObjectId 
+        ? savedNews._id.toString() 
+        : String(savedNews._id);
+        
+      return {
+        message: 'Noticia creada exitosamente',
+        newsId
+      };
+    } catch (error) {
+      throw new Error(`Error al crear noticia: ${error.message}`);
+    }
   }
 
   async getAllNews(): Promise<News[]> {
-    return this.newsModel.find().exec();
+    try {
+      return await this.newsModel.find().sort({ createdAt: -1 }).exec();
+    } catch (error) {
+      throw new Error(`Error al obtener noticias: ${error.message}`);
+    }
+  }
+
+  async deleteNews(id: string): Promise<{ message: string }> {
+    try {
+      // Validar si el ID es válido
+      if (!Types.ObjectId.isValid(id)) {
+        throw new NotFoundException(`ID de noticia no válido: ${id}`);
+      }
+
+      const result = await this.newsModel.findByIdAndDelete(id).exec();
+      
+      if (!result) {
+        throw new NotFoundException(`Noticia con ID "${id}" no encontrada`);
+      }
+      
+      return {
+        message: 'Noticia eliminada exitosamente'
+      };
+    } catch (error) {
+      // Verifica si el error es una instancia de NotFoundException
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      throw new Error(`Error al eliminar noticia: ${error.message}`);
+    }
   }
 }
