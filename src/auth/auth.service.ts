@@ -1,44 +1,41 @@
-import {
-  Injectable,
-  UnauthorizedException,
-  ConflictException,
-} from '@nestjs/common';
+import { Injectable, ConflictException, UnauthorizedException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import * as bcrypt from 'bcrypt';
-import { User } from './schemas/user.schema';
 import { JwtService } from '@nestjs/jwt';
+import * as bcrypt from 'bcrypt';
+
+import { User, UserDocument } from './schemas/user.schema';
+import { SignupDto } from './dto/signup.dto';
 import { LoginDto } from './dto/login.dto';
-import { signUpDto } from './dto/signup.dto';
 
 @Injectable()
 export class AuthService {
   constructor(
-    @InjectModel(User.name)
-    private userModel: Model<User>,
-    private readonly jwtService: JwtService,
+    @InjectModel(User.name) private userModel: Model<UserDocument>,
+    private jwtService: JwtService
   ) {}
 
-  async signup(signUpDto: signUpDto): Promise<{ token: string }> {
-    const { firstName, lastName, phone, email, password } = signUpDto;
+  async signup(signupDto: SignupDto): Promise<{ message: string }> {
+    const { email, password, firstName, lastName, phone } = signupDto;
 
-    const existingUser = await this.userModel.findOne({ email });
-    if (existingUser) {
-      throw new ConflictException('El correo ya está registrado');
+    const userExists = await this.userModel.findOne({ email });
+    if (userExists) {
+      throw new ConflictException('Este correo ya está registrado.');
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const user = await this.userModel.create({
+    const newUser = new this.userModel({
+      email,
+      password: hashedPassword,
       firstName,
       lastName,
       phone,
-      email,
-      password: hashedPassword,
     });
 
-    const token = this.jwtService.sign({ id: user._id });
-    return { token };
+    await newUser.save();
+
+    return { message: 'Usuario registrado con éxito' };
   }
 
   async login(loginDto: LoginDto): Promise<{ token: string }> {
@@ -46,15 +43,17 @@ export class AuthService {
 
     const user = await this.userModel.findOne({ email });
     if (!user) {
-      throw new UnauthorizedException('Correo o contraseña inválidos');
+      throw new UnauthorizedException('Credenciales incorrectas');
     }
 
-    const isPasswordMatched = await bcrypt.compare(password, user.password);
-    if (!isPasswordMatched) {
-      throw new UnauthorizedException('Correo o contraseña inválidos');
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      throw new UnauthorizedException('Credenciales incorrectas');
     }
 
-    const token = this.jwtService.sign({ id: user._id });
+    const payload = { email: user.email, sub: user._id };
+    const token = this.jwtService.sign(payload);
+
     return { token };
   }
 }
