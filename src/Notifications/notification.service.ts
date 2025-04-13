@@ -21,4 +21,14 @@ export class NotificationsService {
       });
     }
   }
+  async findAll(): Promise<Notification[]> {
+    try {
+      return await this.notificationModel.find().exec();
+    } catch (error) {
+      throw new BadRequestException({
+        error: 'Error al obtener las notificaciones',
+        message: error.message,
+      });
+    }
+  }
 }

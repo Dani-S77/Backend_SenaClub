@@ -24,4 +24,22 @@ export class NotificationsController {
       };
     }
   }
+
+  @Get()
+  @HttpCode(HttpStatus.OK)
+  async findAll() {
+    try {
+      const notifications = await this.notificationsService.findAll();
+      return {
+        error: '',
+        message: 'Notificaciones obtenidas correctamente',
+        data: notifications,
+      };
+    } catch (error) {
+      return {
+        error: 'Error al obtener las notificaciones',
+        message: error.message,
+      };
+    }
+  }
 }
