@@ -1,17 +1,21 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
-import * as mongoose from 'mongoose';
+
+export type PostDocument = Post & Document;
 
 @Schema()
-export class Post extends Document {
+export class Post {
+  @Prop({ required: true })
+  title: string;
+
   @Prop({ required: true })
   content: string;
 
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true })
+  @Prop({ required: false, default: 'anonimo' }) 
   user: string;
 
-  @Prop({ default: Date.now })
-  createdAt: Date;
+  @Prop({ required: true })
+  club: string;
 }
 
 export const PostSchema = SchemaFactory.createForClass(Post);
