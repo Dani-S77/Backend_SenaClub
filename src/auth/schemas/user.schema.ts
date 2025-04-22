@@ -9,6 +9,9 @@ export class User {
   @Prop()
   lastName: string;
 
+  @Prop({ default: 'user' })
+  rol: string; 
+
   @Prop()
   phone: string;
 
@@ -17,6 +20,9 @@ export class User {
 
   @Prop()
   password: string;
+
+  @Prop({ type: [String], default: [] })
+  clubs: string[];
 }
 
 export type UserDocument = User & Document;

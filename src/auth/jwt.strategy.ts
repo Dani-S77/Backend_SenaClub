@@ -13,7 +13,16 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
   }
 
+  // payload tendrá sub, email, rol, firstName, lastName, clubs, iat, exp
   async validate(payload: any) {
-    return { userId: payload.id, email: payload.email };
+    // Exponemos también name y clubs en request.user
+    return {
+      userId: payload.sub,
+      email: payload.email,
+      rol: payload.rol,
+      firstName: payload.firstName,
+      lastName: payload.lastName,
+      clubs: payload.clubs,
+    };
   }
 }

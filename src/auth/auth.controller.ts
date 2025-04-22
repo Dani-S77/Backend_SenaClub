@@ -13,8 +13,9 @@ export class AuthController {
   }
 
   @Post('login')
-  login(@Body() loginDto: LoginDto): Promise<{ token: string }> {
+  login(
+    @Body() loginDto: LoginDto
+  ): Promise<{ token: string; rol: string }> {   // ← aquí cambiamos la firma
     return this.authService.login(loginDto);
   }
-  
 }
