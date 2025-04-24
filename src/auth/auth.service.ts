@@ -1,7 +1,8 @@
 import {
   Injectable,
   ConflictException,
-  UnauthorizedException
+  UnauthorizedException,
+  NotFoundException
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -19,7 +20,6 @@ export class AuthService {
     private jwtService: JwtService
   ) {}
 
-  // Registro de usuario con clubs (sin cambios)
   async signup(signupDto: SignupDto): Promise<{ message: string }> {
     const { email, password, firstName, lastName, phone, rol, clubs } = signupDto;
     const userExists = await this.userModel.findOne({ email });
@@ -40,19 +40,13 @@ export class AuthService {
     return { message: 'Usuario registrado con éxito' };
   }
 
-  // Login que devuelve token con nombre completo y clubs
   async login(loginDto: LoginDto): Promise<{ token: string; rol: string }> {
     const { email, password } = loginDto;
     const user = await this.userModel.findOne({ email });
-    if (!user) {
-      throw new UnauthorizedException('Credenciales incorrectas');
-    }
+    if (!user) throw new UnauthorizedException('Credenciales incorrectas');
     const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      throw new UnauthorizedException('Credenciales incorrectas');
-    }
+    if (!isMatch) throw new UnauthorizedException('Credenciales incorrectas');
 
-    // Aquí incluimos firstName, lastName y clubs en el JWT
     const payload = {
       sub: user._id,
       email: user.email,
@@ -62,8 +56,25 @@ export class AuthService {
       clubs: user.clubs
     };
     const token = this.jwtService.sign(payload);
-
-    // Puedes seguir devolviendo rol aparte si lo necesitas en el response
     return { token, rol: user.rol };
+  }
+
+  // Ahora devuelve UserDocument, que sí tiene _id
+  async joinClub(userId: string, club: string): Promise<UserDocument> {
+    const user = await this.userModel.findById(userId);
+    if (!user) throw new NotFoundException('Usuario no encontrado');
+    if (!user.clubs.includes(club)) {
+      user.clubs.push(club);
+      await user.save();
+    }
+    return user;
+  }
+
+  async leaveClub(userId: string, club: string): Promise<UserDocument> {
+    const user = await this.userModel.findById(userId);
+    if (!user) throw new NotFoundException('Usuario no encontrado');
+    user.clubs = user.clubs.filter(c => c !== club);
+    await user.save();
+    return user;
   }
 }
