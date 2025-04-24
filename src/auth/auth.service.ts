@@ -48,7 +48,14 @@ export class AuthService {
       throw new UnauthorizedException('Correo o contraseña incorrectos');
     }
 
-    const token = this.jwtService.sign({ sub: user._id, email: user.email, rol: user.rol });
+    const token = this.jwtService.sign({
+      sub: user._id,
+      email: user.email,
+      rol: user.rol,
+      firstName: user.firstName,
+      lastName: user.lastName,
+    });
+    
 
     return {
       token,
