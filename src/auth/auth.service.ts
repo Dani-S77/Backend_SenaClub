@@ -17,7 +17,7 @@ export class AuthService {
   ) {}
 
   async signup(signupDto: SignupDto): Promise<{ message: string }> {
-    const { firstName, lastName, email, password, phone } = signupDto;
+    const { firstName, lastName, email, password, phone, rol } = signupDto;
 
     const existingUser = await this.userModel.findOne({ email });
     if (existingUser) {
@@ -32,7 +32,7 @@ export class AuthService {
       email,
       password: hashedPassword,
       phone,
-      rol: 'user',
+      rol: rol ?? 'user',
     });
 
     await newUser.save();
