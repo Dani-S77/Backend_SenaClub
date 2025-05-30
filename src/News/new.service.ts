@@ -60,4 +60,36 @@ export class NewsService {
       throw new Error(`Error al eliminar noticia: ${error.message}`);
     }
   }
+
+
+    async updateNews(id: string, updateDto: NewDto): Promise<News> {
+      try {
+        // Validar si el ID es válido
+        if (!Types.ObjectId.isValid(id)) {
+          throw new NotFoundException(`ID de noticia no válido: ${id}`);
+        }
+    
+        const updatedNews = await this.newsModel.findByIdAndUpdate(
+          id,
+          {
+            title: updateDto.title,
+            content: updateDto.content,
+          },
+          { new: true } // Para devolver el documento actualizado
+        );
+    
+        if (!updatedNews) {
+          throw new NotFoundException(`Noticia con ID "${id}" no encontrada`);
+        }
+    
+        return updatedNews;
+      } catch (error) {
+        // Verifica si el error es una instancia de NotFoundException
+        if (error instanceof NotFoundException) {
+          throw error;
+        }
+        throw new Error(`Error al actualizar noticia: ${error.message}`);
+      }
+    }
+  
 }
