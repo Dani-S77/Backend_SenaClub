@@ -5,7 +5,6 @@ import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 
 import { User, UserDocument } from './schemas/user.schema';
-
 import { SignupDto } from './dto/signup.dto';
 import { LoginDto } from './dto/login.dto';
 
@@ -16,8 +15,9 @@ export class AuthService {
     private jwtService: JwtService
   ) {}
 
+  // Registro de usuario
   async signup(signupDto: SignupDto): Promise<{ message: string }> {
-    const { firstName, lastName, email, password, phone, rol } = signupDto;
+    const { firstName, lastName, email, password, phone, rol, clubs } = signupDto;
 
     const existingUser = await this.userModel.findOne({ email });
     if (existingUser) {
@@ -33,6 +33,7 @@ export class AuthService {
       password: hashedPassword,
       phone,
       rol: rol ?? 'user',
+      clubs,                     // ← guardamos los clubs desde el DTO
     });
 
     await newUser.save();
@@ -40,7 +41,10 @@ export class AuthService {
     return { message: 'Usuario registrado exitosamente' };
   }
 
-  async login(loginDto: LoginDto): Promise<{ token: string; rol: string; firstName: string; lastName: string }> {
+   // Login y generación de token
+   async login(
+    loginDto: LoginDto
+  ): Promise<{ token: string; rol: string; firstName: string; lastName: string }> {
     const { email, password } = loginDto;
     const user = await this.userModel.findOne({ email });
 
@@ -48,12 +52,14 @@ export class AuthService {
       throw new UnauthorizedException('Correo o contraseña incorrectos');
     }
 
+    // Firmamos el JWT incluyendo clubs, usando user.id (string) en lugar de user._id
     const token = this.jwtService.sign({
-      sub: user._id,
+      sub: user.id,            // ← aquí usamos user.id, que es string
       email: user.email,
       rol: user.rol,
       firstName: user.firstName,
       lastName: user.lastName,
+      clubs: user.clubs,
     });
 
     return {
@@ -64,6 +70,7 @@ export class AuthService {
     };
   }
 
+  // Método para que un usuario se una a un club
   async joinClub(userId: string, club: string): Promise<UserDocument> {
     const user = await this.userModel.findById(userId);
     if (!user) throw new UnauthorizedException('Usuario no encontrado');
@@ -74,6 +81,7 @@ export class AuthService {
     return user;
   }
 
+  // Método para que un usuario abandone un club
   async leaveClub(userId: string, club: string): Promise<UserDocument> {
     const user = await this.userModel.findById(userId);
     if (!user) throw new UnauthorizedException('Usuario no encontrado');

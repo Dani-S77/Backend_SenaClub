@@ -1,4 +1,4 @@
-import { Body, Post, Get, Controller, HttpCode, HttpStatus } from '@nestjs/common';
+import { Body, Post, Get, Put, Param, Controller, HttpCode, HttpStatus } from '@nestjs/common';
 import { sign } from 'crypto';
 import { NotificationsService } from './notification.service';
 import { NotificationDto } from './dto/notification.dto';
@@ -38,6 +38,24 @@ export class NotificationsController {
     } catch (error) {
       return {
         error: 'Error al obtener las notificaciones',
+        message: error.message,
+      };
+    }
+  }
+
+  @Put(':id')
+  @HttpCode(HttpStatus.OK)
+  async update(@Param('id') id: string, @Body() notificationDto: NotificationDto) {
+    try {
+      const updatedNotification = await this.notificationsService.update(id, notificationDto);
+      return {
+        error: '',
+        message: 'Notificación actualizada correctamente',
+        data: updatedNotification,
+      };
+    } catch (error) {
+      return {
+        error: 'Error al actualizar la notificación',
         message: error.message,
       };
     }
