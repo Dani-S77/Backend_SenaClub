@@ -27,7 +27,17 @@ export class AuthController {
   }
 
   @Post('login')
-  login(@Body() loginDto: LoginDto): Promise<{ token: string; rol: string }> {
+  // Cambiado tipo de retorno para que acepte todos los posibles campos opcionales
+  login(
+    @Body() loginDto: LoginDto
+  ): Promise<{
+    token?: string;
+    rol?: string;
+    firstName?: string;
+    lastName?: string;
+    requireAdminCode?: boolean;
+    message?: string;
+  }> {
     return this.authService.login(loginDto);
   }
 

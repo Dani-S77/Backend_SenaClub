@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, UnauthorizedException, BadRequestException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { JwtService } from '@nestjs/jwt';
@@ -33,7 +33,7 @@ export class AuthService {
       password: hashedPassword,
       phone,
       rol: rol ?? 'user',
-      clubs,                     // ← guardamos los clubs desde el DTO
+      clubs,
     });
 
     await newUser.save();
@@ -41,20 +41,51 @@ export class AuthService {
     return { message: 'Usuario registrado exitosamente' };
   }
 
-   // Login y generación de token
-   async login(
+  // Login y generación de token con validación de adminCode si es admin
+  async login(
     loginDto: LoginDto
-  ): Promise<{ token: string; rol: string; firstName: string; lastName: string }> {
-    const { email, password } = loginDto;
+  ): Promise<{ 
+    token?: string; 
+    rol?: string; 
+    firstName?: string; 
+    lastName?: string; 
+    requireAdminCode?: boolean; 
+    message?: string; 
+  }> {
+    const { email, password, adminCode } = loginDto;
     const user = await this.userModel.findOne({ email });
 
     if (!user || !(await bcrypt.compare(password, user.password))) {
       throw new UnauthorizedException('Correo o contraseña incorrectos');
     }
 
-    // Firmamos el JWT incluyendo clubs, usando user.id (string) en lugar de user._id
+    // Si el usuario es admin, validamos el adminCode
+    if (user.rol === 'admin') {
+      // Logs para depuración
+      console.log('ADMIN_CODE (env):', process.env.ADMIN_CODE);
+      console.log('adminCode (frontend):', adminCode);
+
+      // Si no se envió el código, pedirlo
+      if (!adminCode) {
+        return {
+          message: 'Por favor ingresa el código de administrador',
+          requireAdminCode: true,
+          rol: 'admin'
+        };
+      }
+      // Si el código es incorrecto (comparación sin espacios extra y case-sensitive)
+      if (adminCode.trim() !== (process.env.ADMIN_CODE || '').trim()) {
+        return {
+          message: 'Código de administrador incorrecto',
+          requireAdminCode: true,
+          rol: 'admin'
+        };
+      }
+    }
+
+    // Token y respuesta normal
     const token = this.jwtService.sign({
-      sub: user.id,            // ← aquí usamos user.id, que es string
+      sub: user.id,
       email: user.email,
       rol: user.rol,
       firstName: user.firstName,
