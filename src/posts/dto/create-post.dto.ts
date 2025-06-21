@@ -1,6 +1,15 @@
+import { IsString, IsNotEmpty } from 'class-validator';
+
 export class CreatePostDto {
-  readonly title: string;
-  readonly content: string;
-  readonly club: string;
-  readonly user?: string; 
+  @IsString()
+  @IsNotEmpty()
+  title: string;
+
+  @IsString()
+  @IsNotEmpty()
+  content: string;
+
+  @IsString()
+  @IsNotEmpty()
+  club: string;
 }

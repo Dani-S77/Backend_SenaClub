@@ -1,3 +1,4 @@
+// src/app.module.ts
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
@@ -13,11 +14,12 @@ import { AppService } from './app.service';
 
 @Module({
   imports: [
-    // Importa y configura el módulo de configuración globalmente
+    // Configuración global de variables de entorno
     ConfigModule.forRoot({
       isGlobal: true,
     }),
-    // Configura Mongoose de forma asíncrona para leer la variable DB_URI
+
+    // Configuración de Mongoose: lee la URI de la variable DB_URI
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
@@ -25,6 +27,8 @@ import { AppService } from './app.service';
       }),
       inject: [ConfigService],
     }),
+
+    // Módulos de la aplicación
     AuthModule,
     PostsModule,
     ClubsModule,
