@@ -10,9 +10,9 @@ export class NotificationsService {
     @InjectModel(Notification.name) private notificationModel: Model<Notification>,
   ) {}
 
-  async create(NotificationDto: NotificationDto): Promise<Notification> {
+  async create(notificationDto: NotificationDto): Promise<Notification> {
     try {
-      const createdNotification = new this.notificationModel(NotificationDto);
+      const createdNotification = new this.notificationModel(notificationDto);
       return await createdNotification.save();
     } catch (error) {
       throw new BadRequestException({
@@ -22,41 +22,45 @@ export class NotificationsService {
     }
   }
 
-  async findAll(): Promise<Notification[]> {
-    try {
-      return await this.notificationModel.find().exec();
-    } catch (error) {
-      throw new BadRequestException({
-        error: 'Error al obtener las notificaciones',
-        message: error.message,
-      });
+  // Nuevo: permite filtrar por tipo y/o userId
+  async findAll(filter: { type?: string; userId?: string } = {}): Promise<Notification[]> {
+  try {
+    const query: any = {};
+    if (filter.type) {
+      query.type = filter.type;
     }
+    if (filter.userId) {
+      query.$or = [
+        { userId: filter.userId },
+        { type: 'alert' },
+        { type: 'global' }
+      ];
+    }
+    return await this.notificationModel.find(query).sort({ createdAt: -1 }).exec();
+  } catch (error) {
+    throw new BadRequestException({
+      error: 'Error al obtener las notificaciones',
+      message: error.message,
+    });
   }
+}
 
   async update(id: string, notificationDto: NotificationDto): Promise<Notification> {
     try {
-      console.log(`Actualizando notificación con ID: ${id}`);
-      console.log('Datos recibidos:', notificationDto);
-      
-      // Validar que el ID tenga el formato correcto para MongoDB
       if (!id.match(/^[0-9a-fA-F]{24}$/)) {
         throw new BadRequestException(`ID inválido: ${id}`);
       }
-      
       const updatedNotification = await this.notificationModel.findByIdAndUpdate(
         id,
         notificationDto,
         { new: true }
       ).exec();
-      
+
       if (!updatedNotification) {
         throw new NotFoundException(`Notificación con ID ${id} no encontrada`);
       }
-      
-      console.log('Notificación actualizada:', updatedNotification);
       return updatedNotification;
     } catch (error) {
-      console.error('Error en actualización:', error);
       if (error instanceof NotFoundException || error instanceof BadRequestException) {
         throw error;
       }

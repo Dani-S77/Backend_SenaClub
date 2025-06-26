@@ -37,6 +37,18 @@ export class UsuariosService {
     return updatedUser;
   }
 
+  async updateAbout(id: string, about: string): Promise<Usuario> {
+    const updatedUser = await this.usuarioModel.findByIdAndUpdate(
+      id,
+      { about },
+      { new: true }
+    );
+    if (!updatedUser) {
+      throw new NotFoundException(`Usuario con ID ${id} no encontrado`);
+    }
+    return updatedUser;
+  }
+
   async remove(id: string): Promise<Usuario> {
     const deletedUser = await this.usuarioModel.findByIdAndDelete(id);
     if (!deletedUser) {

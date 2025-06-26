@@ -1,5 +1,4 @@
-import { Body, Post, Get, Put, Param, Controller, HttpCode, HttpStatus } from '@nestjs/common';
-import { sign } from 'crypto';
+import { Body, Post, Get, Put, Param, Query, Controller, HttpCode, HttpStatus } from '@nestjs/common';
 import { NotificationsService } from './notification.service';
 import { NotificationDto } from './dto/notification.dto';
 
@@ -9,9 +8,9 @@ export class NotificationsController {
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  async create(@Body() NotificationDto: NotificationDto) {
+  async create(@Body() notificationDto: NotificationDto) {
     try {
-      const notification = await this.notificationsService.create(NotificationDto);
+      const notification = await this.notificationsService.create(notificationDto);
       return {
         error: '',
         message: 'Notificación creada correctamente',
@@ -25,11 +24,15 @@ export class NotificationsController {
     }
   }
 
+  // Nuevo: recibe query params para filtrar
   @Get()
   @HttpCode(HttpStatus.OK)
-  async findAll() {
+  async findAll(
+    @Query('type') type?: string,
+    @Query('userId') userId?: string,
+  ) {
     try {
-      const notifications = await this.notificationsService.findAll();
+      const notifications = await this.notificationsService.findAll({ type, userId });
       return {
         error: '',
         message: 'Notificaciones obtenidas correctamente',

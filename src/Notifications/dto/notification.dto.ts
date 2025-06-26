@@ -1,4 +1,4 @@
-import { IsEmail, IsNotEmpty, IsString, MinLength, IsEnum } from 'class-validator';
+import { IsString, IsNotEmpty, IsEnum } from 'class-validator';
 
 export class NotificationDto {
   @IsString()
@@ -9,6 +9,6 @@ export class NotificationDto {
   @IsNotEmpty()
   content: string;
 
-  @IsEnum(['info', 'success', 'error', 'warning'])
+  @IsEnum(['info', 'success', 'error', 'warning', 'alert'])
   type: string;
 }

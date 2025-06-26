@@ -3,7 +3,8 @@ import { Document } from 'mongoose';
 
 export type UsuarioDocument = Usuario & Document;
 
-@Schema({ timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' } })
+@Schema({ collection: 'users',
+   timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' } })
 export class Usuario {
   @Prop({ required: true })
   firstName: string;
@@ -26,6 +27,10 @@ export class Usuario {
   // Nuevo campo clubs
   @Prop({ type: [String], default: [] })
   clubs: string[];
+
+  // Nuevo campo About Me
+  @Prop({ type: String, default: '' })
+  about: string;
 }
 
 export const UsuarioSchema = SchemaFactory.createForClass(Usuario);
