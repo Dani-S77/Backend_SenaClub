@@ -1,4 +1,3 @@
-// src/app.module.ts
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
@@ -9,6 +8,8 @@ import { ClubsModule } from './clubs/clubs.module';
 import { UsuariosModule } from './usuarios/usuarios.module';
 import { NotificationsModule } from './Notifications/notification.module';
 import { NewsModule } from './News/new.module';
+import { ReportsModule } from './reports/reports.module'; // ✅ Reportes
+
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 
@@ -19,7 +20,7 @@ import { AppService } from './app.service';
       isGlobal: true,
     }),
 
-    // Configuración de Mongoose: lee la URI de la variable DB_URI
+    // Conexión a MongoDB usando variables de entorno
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
@@ -28,19 +29,19 @@ import { AppService } from './app.service';
       inject: [ConfigService],
     }),
 
-    // Módulos de la aplicación
+    // Módulos funcionales
     AuthModule,
     PostsModule,
     ClubsModule,
     UsuariosModule,
     NotificationsModule,
     NewsModule,
+    ReportsModule, // ✅ Módulo de reportes integrado aquí
   ],
   controllers: [AppController],
   providers: [AppService],
 })
 export class AppModule {}
-
 
 //mongodb+srv://admin:angel12345678@sena.xr6ag.mongodb.net/
 //mongodb+srv://Admin:Dani772.@cluster0.ck5fe.mongodb.net/
