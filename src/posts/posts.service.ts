@@ -11,6 +11,10 @@ export class PostsService {
     @InjectModel(Comment.name) private commentModel: Model<CommentDocument>,
   ) {}
 
+   async findByUser(userId: string): Promise<Post[]> {
+    return this.postModel.find({ user: userId }).sort({ createdAt: -1 }).lean().exec();
+  }
+
   // Crear nuevo post
   async create(createDto: { title: string; content: string; club: string; user: string }): Promise<Post> {
     const created = new this.postModel(createDto);
