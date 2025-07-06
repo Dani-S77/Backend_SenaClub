@@ -5,7 +5,9 @@ import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
-  constructor(private configService: ConfigService) {
+  constructor(configService: ConfigService) {
+    // Puedes agregar este log para depurar:
+    console.log('JWT_SECRET (estrategia):', configService.get<string>('JWT_SECRET'));
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
@@ -13,9 +15,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  // payload tendrá sub, email, rol, firstName, lastName, clubs, iat, exp
   async validate(payload: any) {
-    // Exponemos también name y clubs en request.user
     return {
       userId: payload.sub,
       email: payload.email,

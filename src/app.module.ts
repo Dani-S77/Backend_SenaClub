@@ -15,10 +15,8 @@ import { AppService } from './app.service';
 
 @Module({
   imports: [
-    // Variables de entorno
     ConfigModule.forRoot({ isGlobal: true }),
 
-    // MongoDB
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: (config: ConfigService) => ({
@@ -27,7 +25,6 @@ import { AppService } from './app.service';
       inject: [ConfigService],
     }),
 
-    // Mailer (Gmail SMTP)
     MailerModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: (config: ConfigService) => ({
@@ -47,7 +44,6 @@ import { AppService } from './app.service';
       inject: [ConfigService],
     }),
 
-    // Módulos de la app
     AuthModule,
     PostsModule,
     ClubsModule,
@@ -60,32 +56,3 @@ import { AppService } from './app.service';
   providers: [AppService],
 })
 export class AppModule {}
-
-
-//mongodb+srv://admin:angel12345678@sena.xr6ag.mongodb.net/
-//mongodb+srv://Admin:Dani772.@cluster0.ck5fe.mongodb.net/
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//http://localhost:3000/posts
-//npm run start:dev
-//npm run start:dev
