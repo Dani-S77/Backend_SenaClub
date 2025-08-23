@@ -12,8 +12,7 @@ export class News extends Document {
   @Prop({ required: true })
   author: string;
 
-  @Prop()
-  createdAt: Date;
+ 
 
   @Prop()
   updatedAt: Date;

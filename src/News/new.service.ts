@@ -8,16 +8,15 @@ import { NewDto } from './dto/new.dto';
 export class NewsService {
   constructor(@InjectModel(News.name) private newsModel: Model<News>) {}
 
-  async create(newDto: Partial<News>): Promise<{ message: string; newsId: string }> {
-    try {
-      const news = new this.newsModel(newDto);
-      const savedNews = await news.save();
-      const newsId = savedNews._id instanceof Types.ObjectId ? savedNews._id.toString() : String(savedNews._id);
-      return { message: 'Noticia creada exitosamente', newsId };
-    } catch (error) {
-      throw new Error(`Error al crear noticia: ${error.message}`);
-    }
+   async create(newDto: Partial<News>): Promise<News> {
+  try {
+    const news = new this.newsModel(newDto);
+    return await news.save(); // devuelve la noticia completa, no solo el mensaje
+  } catch (error) {
+    throw new Error(`Error al crear noticia: ${error.message}`);
   }
+}
+
 
   async getAllNews(): Promise<News[]> {
     try {
