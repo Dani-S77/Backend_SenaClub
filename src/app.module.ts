@@ -29,9 +29,9 @@ import { AppService } from './app.service';
       imports: [ConfigModule],
       useFactory: (config: ConfigService) => ({
         transport: {
-          host: 'smtp.gmail.com',
-          port: 587,
-          secure: false,
+          host: config.get<string>('SMTP_HOST'),
+          port: Number(config.get<string>('SMTP_PORT')),
+          secure: config.get<string>('SMTP_SECURE') === 'true',
           auth: {
             user: config.get<string>('SMTP_USER'),
             pass: config.get<string>('SMTP_PASS'),

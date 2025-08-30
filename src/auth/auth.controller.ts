@@ -15,7 +15,27 @@ export class AuthController {
     private readonly jwtService: JwtService,
   ) {}
 
-  // Verificar correo: envía el código
+  // ========================
+  //  RECUPERACIÓN DE CONTRASEÑA
+  // ========================
+
+  @Post('forgot-password')
+  async forgotPassword(@Body('email') email: string) {
+    return this.authService.sendPasswordReset(email);
+  }
+
+  @Post('reset-password')
+  async resetPassword(
+    @Body('token') token: string,
+    @Body('newPassword') newPassword: string,
+  ) {
+    return this.authService.resetPassword(token, newPassword);
+  }
+
+  // ========================
+  //  FUNCIONES EXISTENTES
+  // ========================
+
   @Post('send-code')
   async sendCode(
     @Body('email') email: string,
@@ -25,13 +45,11 @@ export class AuthController {
     return { message: 'Código enviado' };
   }
 
-  // Registro
   @Post('signup')
   signUp(@Body() signupDto: SignupDto): Promise<{ message: string }> {
     return this.authService.signup(signupDto);
   }
 
-  // Login
   @Post('login')
   login(@Body() loginDto: LoginDto): Promise<{
     token?: string;
@@ -44,7 +62,6 @@ export class AuthController {
     return this.authService.login(loginDto);
   }
 
-  // Asociar club
   @UseGuards(JwtAuthGuard)
   @Patch(':userId/clubs')
   async joinClub(
@@ -63,7 +80,6 @@ export class AuthController {
     return { token: this.jwtService.sign(payload), clubs: user.clubs };
   }
 
-  // Quitar club
   @UseGuards(JwtAuthGuard)
   @Delete(':userId/clubs/:club')
   async leaveClub(
@@ -81,5 +97,11 @@ export class AuthController {
       clubs: user.clubs,
     };
     return { token: this.jwtService.sign(payload), clubs: user.clubs };
+  }
+
+  @Post('test-email')
+  async testEmail(@Body('email') email: string) {
+    await this.mailService.sendSimpleTextEmail(email, 'Este es un correo de prueba.');
+    return { message: 'Correo enviado (si la configuración es correcta).' };
   }
 }
