@@ -1,3 +1,4 @@
+// src/posts/posts.controller.ts
 import {
   Controller,
   Get,
@@ -29,11 +30,13 @@ export class PostsController {
   @HttpPost()
   async create(@Body() createPostDto: CreatePostDto, @Request() req): Promise<PostEntity> {
     const userId: string = req.user.userId;
+    const username = `${req.user.firstName || ''} ${req.user.lastName || ''}`.trim() || 'anonimo';
     return this.postsService.create({
       title: createPostDto.title,
       content: createPostDto.content,
       club: createPostDto.club,
       user: userId,
+      username,
     });
   }
 
@@ -57,7 +60,10 @@ export class PostsController {
     if (!post) throw new NotFoundException('Post no encontrado');
     const userId: string = req.user.userId;
     const isAdmin = req.user.rol === 'admin';
-    if (post.user !== userId && !isAdmin) {
+
+    // post.user puede ser ObjectId o string dependiendo de cómo se guardó; normalizamos a string
+    const postUserId = (post as any).user?._id ?? (post as any).user;
+    if (String(postUserId) !== String(userId) && !isAdmin) {
       throw new ForbiddenException('No tienes permiso para actualizar este post');
     }
     return this.postsService.update(id, updatePostDto);

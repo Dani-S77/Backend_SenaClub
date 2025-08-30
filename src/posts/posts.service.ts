@@ -1,3 +1,4 @@
+// src/posts/posts.service.ts
 import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -11,22 +12,24 @@ export class PostsService {
     @InjectModel(Comment.name) private commentModel: Model<CommentDocument>,
   ) {}
 
-   async findByUser(userId: string): Promise<Post[]> {
+  async findByUser(userId: string): Promise<Post[]> {
+    // el campo user es ObjectId/string; buscamos por su id
     return this.postModel.find({ user: userId }).sort({ createdAt: -1 }).lean().exec();
   }
 
-  // Crear nuevo post
-  async create(createDto: { title: string; content: string; club: string; user: string }): Promise<Post> {
+  // Crear nuevo post (guardamos username para uso rápido en frontend)
+  async create(createDto: { title: string; content: string; club: string; user: string; username: string }): Promise<Post> {
     const created = new this.postModel(createDto);
     return created.save();
   }
 
   // Obtener todos los posts, ordenados por fecha descendente
   async findAll(): Promise<Post[]> {
+    // Devolvemos lean() (objetos planos), username ya está guardado en el documento
     return this.postModel.find().sort({ createdAt: -1 }).lean().exec();
   }
 
-  // Obtener un post por ID (para ver autor, permisos, etc.)
+  // Obtener un post por ID
   async findById(id: string): Promise<Post | null> {
     return this.postModel.findById(id).lean().exec();
   }
@@ -91,12 +94,13 @@ export class PostsService {
   // Eliminar comentario (sólo autor o admin)
   async removeComment(postId: string, commentId: string, userId: string, isAdmin: boolean): Promise<void> {
     const comment = await this.commentModel.findById(commentId).exec();
-    if (!comment || comment.postId !== postId) {
+    if (!comment || String(comment.postId) !== String(postId)) {
       throw new NotFoundException('Comentario no encontrado para este post');
     }
-    if (comment.userId !== userId && !isAdmin) {
+    if (String(comment.userId) !== String(userId) && !isAdmin) {
       throw new ForbiddenException('No autorizado para eliminar este comentario');
     }
     await this.commentModel.deleteOne({ _id: commentId }).exec();
   }
 }
+
