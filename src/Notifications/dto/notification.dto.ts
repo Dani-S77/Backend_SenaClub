@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, IsEnum } from 'class-validator';
+import { IsString, IsNotEmpty, IsEnum, IsOptional } from 'class-validator';
 
 export class NotificationDto {
   @IsString()
@@ -11,4 +11,12 @@ export class NotificationDto {
 
   @IsEnum(['info', 'success', 'error', 'warning', 'alert'])
   type: string;
+
+  @IsOptional()
+  @IsString()
+  userId?: string;
+
+  @IsOptional()
+  @IsString()
+  userName?: string;
 }
