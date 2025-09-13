@@ -1,36 +1,38 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose'; 
-import { Document } from 'mongoose';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose'
+import { Document } from 'mongoose'
 
-export type UsuarioDocument = Usuario & Document;
+export type UsuarioDocument = Usuario & Document
 
-@Schema({ collection: 'users',
-   timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' } })
+@Schema({
+  collection: 'users',
+  timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' },
+})
 export class Usuario {
   @Prop({ required: true })
-  firstName: string;
+  firstName: string
 
   @Prop({ required: true })
-  lastName: string;
+  lastName: string
 
   @Prop({ required: true })
-  role: string;
+  role: string
 
   @Prop({ required: true })
-  phone: string;
+  phone: string
 
   @Prop({ required: true, unique: true })
-  email: string;
+  email: string
 
   @Prop({ required: true })
-  password: string;
+  password: string
 
   // Nuevo campo clubs
   @Prop({ type: [String], default: [] })
-  clubs: string[];
+  clubs: string[]
 
   // Nuevo campo About Me
   @Prop({ type: String, default: '' })
-  about: string;
+  about: string
 }
 
-export const UsuarioSchema = SchemaFactory.createForClass(Usuario);
+export const UsuarioSchema = SchemaFactory.createForClass(Usuario)
