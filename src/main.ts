@@ -40,6 +40,7 @@ async function bootstrap() {
     },
     allowedHeaders: 'Content-Type,Authorization',
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    credentials: true,
   });
 
   // ─── 4️⃣ Validación global (DTOs) ────────────────────────────────
