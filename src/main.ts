@@ -27,7 +27,17 @@ async function bootstrap() {
 
   // ─── 3️⃣ CORS ────────────────────────────────────────────────────
   app.enableCors({
-  origin: ['http://localhost:5173', 'https://desarrollodeaplicacion.vercel.app'],
+    origin: (origin, callback) => {
+      const allowedOrigins = [
+        'http://localhost:5173',
+        'https://desarrollodeaplicacion.vercel.app',
+      ];
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
     allowedHeaders: 'Content-Type,Authorization',
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
   });
