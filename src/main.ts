@@ -32,6 +32,8 @@ async function bootstrap() {
       const allowedOrigins = [
         'http://localhost:5173',
         'https://desarrollodeaplicacion.vercel.app',
+        'https://desarrollodeaplicacion.vercel.app/',
+        'https://backend-senaclub-xtrt.onrender.com',
       ];
       if (!origin || allowedOrigins.includes(origin)) {
         callback(null, true);
