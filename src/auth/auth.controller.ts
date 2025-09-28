@@ -1,4 +1,12 @@
-import { Controller, Body, Post, Patch, Delete, Param, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Body,
+  Post,
+  Patch,
+  Delete,
+  Param,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { MailService } from './mail.service';
 import { SignupDto } from './dto/signup.dto';
@@ -19,7 +27,7 @@ export class AuthController {
   //  RECUPERACIÓN DE CONTRASEÑA
   // ========================
 
-  @Post('forgot-password')
+  @Post('/forgot-password')
   async forgotPassword(@Body('email') email: string) {
     return this.authService.sendPasswordReset(email);
   }
@@ -87,7 +95,10 @@ export class AuthController {
     @Param('club') club: string,
   ): Promise<{ token: string; clubs: string[] }> {
     const decoded = decodeURIComponent(club);
-    const user: UserDocument = await this.authService.leaveClub(userId, decoded);
+    const user: UserDocument = await this.authService.leaveClub(
+      userId,
+      decoded,
+    );
     const payload = {
       sub: user._id,
       email: user.email,
@@ -101,7 +112,10 @@ export class AuthController {
 
   @Post('test-email')
   async testEmail(@Body('email') email: string) {
-    await this.mailService.sendSimpleTextEmail(email, 'Este es un correo de prueba.');
+    await this.mailService.sendSimpleTextEmail(
+      email,
+      'Este es un correo de prueba.',
+    );
     return { message: 'Correo enviado (si la configuración es correcta).' };
   }
 }
