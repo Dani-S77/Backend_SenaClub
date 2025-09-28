@@ -32,7 +32,6 @@ async function bootstrap() {
       const allowedOrigins = [
         'http://localhost:5173',
         'https://desarrollodeaplicacion.vercel.app',
-        'https://desarrollodeaplicacion-mhtxkvxj0-dani-s77s-projects.vercel.app',
       ];
       if (!origin || allowedOrigins.includes(origin)) {
         callback(null, true);
