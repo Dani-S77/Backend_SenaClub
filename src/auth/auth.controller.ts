@@ -32,7 +32,7 @@ export class AuthController {
     return this.authService.sendPasswordReset(email);
   }
 
-  @Post('reset-password')
+  @Post('/reset-password')
   async resetPassword(
     @Body('token') token: string,
     @Body('newPassword') newPassword: string,
