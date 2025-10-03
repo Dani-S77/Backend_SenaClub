@@ -29,20 +29,7 @@ export class AuthService {
     const { firstName, lastName, email, password, phone, rol, clubs } =
       signupDto;
 
-    // Validar dominio de correo según rol
-    if (rol === 'admin') {
-      if (!email.endsWith('@sena.edu')) {
-        throw new BadRequestException(
-          'Solo se permiten correos @sena.edu para administradores',
-        );
-      }
-    } else {
-      if (!email.endsWith('@soy.sena.edu.co')) {
-        throw new BadRequestException(
-          'Solo se permiten correos @soy.sena.edu.co para aprendices',
-        );
-      }
-    }
+    // Validación de dominio eliminada - Ahora acepta cualquier email
 
     const existingUser = await this.userModel.findOne({ email });
     if (existingUser) {
